@@ -37,8 +37,7 @@ spec:
              helm repo update
 
              helm fetch wordsmith/wordsmith-another-api --version ${APPLICATION_VERSION}
-             helm upgrade wordsmith-another-api-preview wordsmith/wordsmith-another-api --version ${APPLICATION_VERSION} --install --namespace preview --wait \
-                --set ingress.hosts[0]=${APP_HOST},image.pullPolicy=Always
+             helm rollback wordsmith-another-api-preview ${APPLICATION_VERSION} --wait
             """
 
         } // container
