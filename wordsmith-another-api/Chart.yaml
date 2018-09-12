@@ -1,5 +1,5 @@
 apiVersion: v1
-appVersion: {{version}}
+appVersion: "{{version}}"
 description: wordsmith-another-api helm chart
 name: wordsmith-another-api
-version: {{version}}
+version: "{{version}}"

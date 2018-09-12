@@ -52,7 +52,7 @@ pipeline {
       steps {
         script {
             def now = new Date()
-            APPLICATION_VERSION = now.format("yyyyMMdd-HHmm", TimeZone.getTimeZone('UTC'))
+            APPLICATION_VERSION = now.format("yyyyMMdd.HHmm", TimeZone.getTimeZone('UTC'))
             writeFile(file: 'VERSION', text: APPLICATION_VERSION)
         }
         container('go') {
@@ -116,7 +116,7 @@ pipeline {
              helm repo add wordsmith http://chartmuseum-chartmuseum.core.svc.cluster.local:8080
              helm repo update
 
-             helm upgrade wordsmith-another-api-preview wordsmith/wordsmith-another-api --version ${APPLICATION_VERSION} --install --namespace preview --wait \
+             helm upgrade wordsmith-another-api-preview wordsmith/wordsmith-another-api --version "${APPLICATION_VERSION}" --install --namespace preview --wait \
                 --set ingress.hosts[0]=${APP_HOST},image.pullPolicy=Always
             """
         }
