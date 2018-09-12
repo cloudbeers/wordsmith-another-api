@@ -1,6 +1,6 @@
 # Requirement
 
-The Docker image must run with the following environment variable : _apiUrl_
+No requirement.
 
 # Version
 
