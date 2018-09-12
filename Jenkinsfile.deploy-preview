@@ -36,8 +36,9 @@ spec:
              helm repo add wordsmith http://chartmuseum-chartmuseum.core.svc.cluster.local:8080
              helm repo update
 
-             helm fetch wordsmith/wordsmith-another-api --version ${APPLICATION_VERSION}
-             helm rollback wordsmith-another-api-preview ${APPLICATION_VERSION} --wait
+             helm fetch wordsmith/wordsmith-another-api --version "${APPLICATION_VERSION}"
+             helm upgrade wordsmith-another-api-preview wordsmith/wordsmith-another-api --version "${APPLICATION_VERSION}" --install --namespace preview --wait \
+                --set ingress.hosts[0]=${APP_HOST},image.pullPolicy=Always
             """
 
         } // container
