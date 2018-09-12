@@ -1,0 +1,59 @@
+def label = "wordsmith-another-api-${UUID.randomUUID().toString()}"
+podTemplate(label: label, yaml: """
+apiVersion: v1
+kind: Pod
+spec:
+    containers:
+    - name: jnlp
+    - name: helm
+      image: devth/helm
+      command:
+      - cat
+      tty: true
+    - name: kubectl
+      image: lachlanevenson/k8s-kubectl:v1.10.7
+      command:
+      - cat
+      tty: true
+    - name: curl
+      image: appropriate/curl
+      command:
+      - cat
+      tty: true
+"""
+    ) {
+  userInput = input message: 'Application Version', ok: 'Deploy', parameters: [string(description: 'Wordsmith ANOTHER API Helm Chart Version', name: 'Wordsmith Another Api Version', trim: true)], submitterParameter: 'submitter'
+  APPLICATION_VERSION = userInput['Wordsmith Another Api Version']
+  echo("application version: $APPLICATION_VERSION")
+  node (label) {
+    stage('Deploy to Preview Environment') {
+        container('helm') {
+          APP_HOST = 'another-api.preview.wordsmith.beescloud.com'
+
+          sh """
+
+             helm init --client-only
+             helm repo add wordsmith http://chartmuseum-chartmuseum.core.svc.cluster.local:8080
+             helm repo update
+
+             helm fetch wordsmith/wordsmith-another-api --version ${APPLICATION_VERSION}
+             helm upgrade wordsmith-another-api-preview wordsmith/wordsmith-another-api --version ${APPLICATION_VERSION} --install --namespace preview --wait \
+                --set ingress.hosts[0]=${APP_HOST},image.pullPolicy=Always
+            """
+          archiveArtifacts artifacts: "wordsmith-another-api-${APPLICATION_VERSION}.tgz", fingerprint: true
+
+        } // container
+        container('kubectl') {
+          sh """
+            kubectl describe deployment wordsmith-another-api-preview --namespace preview
+            kubectl get ingress wordsmith-another-api-preview --namespace preview
+          """
+        } // container
+        container('curl') {
+          sh """
+            curl -v https://another-api.preview.wordsmith.beescloud.com/version
+          """
+        } // container
+    } // stage
+  } // node
+} // podTemplate
